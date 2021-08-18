@@ -115,7 +115,7 @@ def get_shoe_category(category_id):
     postdata = postf.getvalue()
 
     new_sign = requests.post(url='https://18.216.112.157:24338/sign',data=postdata,verify=False)
-
+    print new_sign.text
 
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     data = {
