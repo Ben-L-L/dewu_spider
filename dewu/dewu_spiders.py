@@ -1,6 +1,6 @@
 # coding=utf-8
 import time
-from io import StringIO
+from StringIO import StringIO
 import gzip
 import json
 # from dewu.dewu_frida import dw
