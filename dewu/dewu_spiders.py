@@ -1,10 +1,9 @@
 # coding=utf-8
 import time
-# from StringIO import StringIO
-from io import BytesIO
+from StringIO import StringIO
+# from io import BytesIO
 import gzip
 import json
-# from dewu.dewu_frida import dw
 import requests
 # from geetest_slide3.main import click_slide
 headers = {
@@ -37,9 +36,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = BytesIO()
+    postf = StringIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata.encode())
+    gf.write(postdata)
     gf.close()
     postdata = postf.getvalue()
 
@@ -144,8 +143,6 @@ def get_shoe_list(shoe_id,page):
     }
 
     new_sign = post_data(sign_data)
-
-
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     data = {"aggregation":False,
             "brandId":shoe_id,
@@ -166,9 +163,8 @@ def get_shoe_list(shoe_id,page):
             "uuid":"dae0d85008025953",
             "v":"4.60.1"
             }
-
     req = requests.post(url=url, headers=headers, json=data)
-    print(req.text)
+    return req.text
 
 
 
@@ -217,8 +213,8 @@ def get_shoe_detial(spuid):
 
     response = requests.post(url=url,headers=headers,json=data)
     # return response.text
-    print(response.text)
-get_shoe_detial(9670)
+    # print(response.text)
+# get_shoe_detial(9670)
 
 # #通过列表页的spuid获取详情页下面的全部购买记录
 def get_shoe_buy_history(spuid,page):
