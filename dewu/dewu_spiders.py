@@ -53,7 +53,7 @@ def click_validate(validate,chanllge):
         "loginToken":"",
         "newSign":new_sign['sign'],
         "platform":"android",
-        "seccode":f"{validate}|jordan",
+        "seccode":"{}|jordan".format(validate),
         "serverStatus":1,
         "timestamp":str(new_sign['times']),
         "uuid":"d3912f6303c7eb8a",
