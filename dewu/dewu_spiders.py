@@ -115,15 +115,15 @@ def get_shoe_category(category_id):
     postdata = postf.getvalue()
 
     new_sign = requests.post(url='https://18.216.112.157:24338/sign',data=postdata,verify=False)
-    print new_sign
 
-    headers['timestamp'] = str(json.loads(new_sign['times']))
+
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     data = {
         "catId":"3",
         "loginToken": "",
-        "newSign": new_sign['sign'],
+        "newSign": json.loads(new_sign.text)['sign'],
         "platform": "android",
-        "timestamp": str(new_sign['times']),
+        "timestamp": str(json.loads(new_sign.text)['times']),
         "uuid": "d3912f6303c7eb8a",
         "v": "4.60.1"
     }
