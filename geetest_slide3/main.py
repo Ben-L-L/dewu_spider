@@ -19,7 +19,7 @@ class Geetest(object):
             'challenge': challenge,
             'lang': 'zh-cn',
             'client_type': 'android',
-            'callback': f'geetest_{int(time.time()*1000)}',
+            'callback': 'geetest_{}'.format(int(time.time()*1000)),
         }
         self.session.get(url=self.get_cookie,params=params)
         Img_pam ={
@@ -155,7 +155,7 @@ class Geetest(object):
             'pt': '3',
             'client_type': 'web_mobile',
             'w': w,
-            'callback': f'geetest_{int(time.time())}',
+            'callback': 'geetest_{}'.format(int(time.time())),
         }
 
         headers = {
@@ -202,7 +202,7 @@ class Geetest(object):
             },
         }
 
-        url = f'https://static.geetest.com{gct_path}'
+        url = 'https://static.geetest.com{}'.format(gct_path)
         req = requests.get(url=url)
         data = req.text.replace('return function(t)', 'return window.get_ct=function(t)')
 
