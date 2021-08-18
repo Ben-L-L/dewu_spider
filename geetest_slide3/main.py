@@ -38,7 +38,7 @@ class Geetest(object):
             # 'isPC': 'true',
             # 'autoReset': 'true',
             'width': '100%',
-            'callback': f'geetest_{int(time.time()*1000)}',
+            'callback': 'geetest_{}'.format(int(time.time()*1000)),
         }
         headers = {
             'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
