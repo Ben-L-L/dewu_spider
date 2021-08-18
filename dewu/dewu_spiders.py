@@ -40,39 +40,39 @@ headers = {
 
 
 #解决滑块验证码方法
-def click_validate(validate,chanllge):
-    """
-    :param validate:   如果滑块成功会返回 validate
-    :param chanllge:    这个就是每个滑块的标识
-    :return:  msg = ok   stutas = 200 代表过了滑块
-    """
-
-    times = int(time.time() * 1000)
-    url = 'https://app.dewu.com/api/v1/app/security-anti-spider/secondVerify'
-    script = dw.get_script()
-    new_sign = script.exports.getnewsign(times, '',click_validate.__name__.split('_')[-1],'',
-                                         validate,chanllge)
-    headers['timestamp'] = str(new_sign['times'])
-
-    data = {
-        "challenge":chanllge,
-        "loginToken":"",
-        "newSign":new_sign['sign'],
-        "platform":"android",
-        "seccode":"{}|jordan".format(validate),
-        "serverStatus":1,
-        "timestamp":str(new_sign['times']),
-        "uuid":"d3912f6303c7eb8a",
-        "v":"4.60.1",
-        "validate":validate
-    }
-
-    response = requests.post(url=url, headers=headers, json=data)
-    results = response.json()
-    msg = results['msg']
-    status = results['status']
-
-    return msg,status
+# def click_validate(validate,chanllge):
+#     """
+#     :param validate:   如果滑块成功会返回 validate
+#     :param chanllge:    这个就是每个滑块的标识
+#     :return:  msg = ok   stutas = 200 代表过了滑块
+#     """
+#
+#     times = int(time.time() * 1000)
+#     url = 'https://app.dewu.com/api/v1/app/security-anti-spider/secondVerify'
+#     script = dw.get_script()
+#     new_sign = script.exports.getnewsign(times, '',click_validate.__name__.split('_')[-1],'',
+#                                          validate,chanllge)
+#     headers['timestamp'] = str(new_sign['times'])
+#
+#     data = {
+#         "challenge":chanllge,
+#         "loginToken":"",
+#         "newSign":new_sign['sign'],
+#         "platform":"android",
+#         "seccode":"{}|jordan".format(validate),
+#         "serverStatus":1,
+#         "timestamp":str(new_sign['times']),
+#         "uuid":"d3912f6303c7eb8a",
+#         "v":"4.60.1",
+#         "validate":validate
+#     }
+#
+#     response = requests.post(url=url, headers=headers, json=data)
+#     results = response.json()
+#     msg = results['msg']
+#     status = results['status']
+#
+#     return msg,status
 
 
 
@@ -127,108 +127,108 @@ def get_shoe_category(category_id):
 
 
 #通过鞋子分类下面每个品牌的id获取不同鞋子的列表页
-def get_shoe_list(shoe_id,page):
-    """
-    :param shoe_id:  鞋子类别id 就是 get_shoe_category 返回的 brandId
-    :param page:  页数 第1页为 ''   第二页为10  第三页20  以此类推
-    :return:
-    """
-
-    times = int(time.time() * 1000)
-    url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
-
-    script = dw.get_script()
-
-    new_sign = script.exports.getnewsign(times, shoe_id, get_shoe_list.__name__.split('_')[-1],page)
-
-    headers['timestamp'] = str(new_sign['times'])
-    data = {"aggregation":False,
-            "brandId":shoe_id,
-            "categoryIds":[],
-            "categoryLevel1":"29",
-            "debugAgg":True,
-            "fitIds":[],
-            "lastId":page,
-            "limit":20,
-            "loginToken":"",
-            "newSign":new_sign['sign'],
-            "platform":"android",
-            "price":[],
-            "property":[],
-            "sortMode":1,
-            "sortType":0,
-            "timestamp":str(new_sign['times']),
-            "uuid":"d3912f6303c7eb8a",
-            "v":"4.60.1"
-            }
-    #
-    req = requests.post(url=url, headers=headers, json=data)
-    return req.text
-
-
-
-#通过鞋子列表页的spuid获取到鞋子的详情页
-def get_shoe_detial(spuid):
-    """
-
-
-    :param spuid:  通过列表页的spuid 获取详情信息 get_shoe_list返回的spuid
-    :return:
-    """
-    times = int(time.time() * 1000)
-    url = 'https://app.dewu.com/api/v1/app/index/ice/flow/product/detail'
-    script = dw.get_script()
-    new_sign = script.exports.getnewsign(times, spuid, get_shoe_detial.__name__.split('_')[-1])
-    headers['timestamp'] = str(new_sign['times'])
-    data = {
-        "arFileSwitch":True,
-        "groupFirstId":spuid,
-        "loginToken": "",
-        "newSign": new_sign['sign'],
-        "platform": "android",
-        "productSourceName":"",
-        "propertyValueId":0,
-        "skuId":0,
-        "spuId": spuid,
-        "timestamp": str(new_sign['times']),
-        "uuid": "d3912f6303c7eb8a",
-        "v": "4.60.1"
-    }
-
-    response = requests.post(url=url,headers=headers,json=data)
-    return response.text
-
-
-#通过列表页的spuid获取详情页下面的全部购买记录
-def get_shoe_buy_history(spuid):
-
-    """
-    :param spuid:  列表页获取到的spuid
-    :param page:  一页返回100条     页码 第一页 ''  第二页要获取到接口的lastId
-    :return:
-    """
-    page = ''
-    while True:
-        times = int(time.time() * 1000)
-        url = 'https://app.dewu.com/api/v1/app/commodity/ice/last-sold-list'
-
-        new_sign = script.exports.getnewsign(times, spuid, get_shoe_buy_history.__name__.split('_')[-1],page)
-        headers['timestamp'] = str(new_sign['times'])
-        data = {
-            "lastId": page,
-            "limit":100,
-            "loginToken": "",
-            "newSign": new_sign['sign'],
-            "platform": "android",
-            "spuId":spuid,
-            "timestamp": str(new_sign['times']),
-            "uuid": "d3912f6303c7eb8a",
-            "v": "4.60.1"
-        }
-        response = requests.post(url=url, headers=headers, json=data)
-
-
-        return response.text
+# def get_shoe_list(shoe_id,page):
+#     """
+#     :param shoe_id:  鞋子类别id 就是 get_shoe_category 返回的 brandId
+#     :param page:  页数 第1页为 ''   第二页为10  第三页20  以此类推
+#     :return:
+#     """
+#
+#     times = int(time.time() * 1000)
+#     url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
+#
+#     script = dw.get_script()
+#
+#     new_sign = script.exports.getnewsign(times, shoe_id, get_shoe_list.__name__.split('_')[-1],page)
+#
+#     headers['timestamp'] = str(new_sign['times'])
+#     data = {"aggregation":False,
+#             "brandId":shoe_id,
+#             "categoryIds":[],
+#             "categoryLevel1":"29",
+#             "debugAgg":True,
+#             "fitIds":[],
+#             "lastId":page,
+#             "limit":20,
+#             "loginToken":"",
+#             "newSign":new_sign['sign'],
+#             "platform":"android",
+#             "price":[],
+#             "property":[],
+#             "sortMode":1,
+#             "sortType":0,
+#             "timestamp":str(new_sign['times']),
+#             "uuid":"d3912f6303c7eb8a",
+#             "v":"4.60.1"
+#             }
+#     #
+#     req = requests.post(url=url, headers=headers, json=data)
+#     return req.text
+#
+#
+#
+# #通过鞋子列表页的spuid获取到鞋子的详情页
+# def get_shoe_detial(spuid):
+#     """
+#
+#
+#     :param spuid:  通过列表页的spuid 获取详情信息 get_shoe_list返回的spuid
+#     :return:
+#     """
+#     times = int(time.time() * 1000)
+#     url = 'https://app.dewu.com/api/v1/app/index/ice/flow/product/detail'
+#     script = dw.get_script()
+#     new_sign = script.exports.getnewsign(times, spuid, get_shoe_detial.__name__.split('_')[-1])
+#     headers['timestamp'] = str(new_sign['times'])
+#     data = {
+#         "arFileSwitch":True,
+#         "groupFirstId":spuid,
+#         "loginToken": "",
+#         "newSign": new_sign['sign'],
+#         "platform": "android",
+#         "productSourceName":"",
+#         "propertyValueId":0,
+#         "skuId":0,
+#         "spuId": spuid,
+#         "timestamp": str(new_sign['times']),
+#         "uuid": "d3912f6303c7eb8a",
+#         "v": "4.60.1"
+#     }
+#
+#     response = requests.post(url=url,headers=headers,json=data)
+#     return response.text
+#
+#
+# #通过列表页的spuid获取详情页下面的全部购买记录
+# def get_shoe_buy_history(spuid):
+#
+#     """
+#     :param spuid:  列表页获取到的spuid
+#     :param page:  一页返回100条     页码 第一页 ''  第二页要获取到接口的lastId
+#     :return:
+#     """
+#     page = ''
+#     while True:
+#         times = int(time.time() * 1000)
+#         url = 'https://app.dewu.com/api/v1/app/commodity/ice/last-sold-list'
+#
+#         new_sign = script.exports.getnewsign(times, spuid, get_shoe_buy_history.__name__.split('_')[-1],page)
+#         headers['timestamp'] = str(new_sign['times'])
+#         data = {
+#             "lastId": page,
+#             "limit":100,
+#             "loginToken": "",
+#             "newSign": new_sign['sign'],
+#             "platform": "android",
+#             "spuId":spuid,
+#             "timestamp": str(new_sign['times']),
+#             "uuid": "d3912f6303c7eb8a",
+#             "v": "4.60.1"
+#         }
+#         response = requests.post(url=url, headers=headers, json=data)
+#
+#
+#         return response.text
 
 
 
