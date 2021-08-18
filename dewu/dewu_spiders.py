@@ -3,7 +3,7 @@ import time
 from io import StringIO
 import gzip
 import json
-from dewu.dewu_frida import dw
+# from dewu.dewu_frida import dw
 import requests
 from geetest_slide3.main import click_slide
 headers = {
@@ -26,7 +26,7 @@ headers = {
     'Accept-Encoding': 'gzip',
 }
 
-script = dw.get_script()
+# script = dw.get_script()
 
 """
 风控问题接口请求次数频繁之后会出现极验的滑块验证
