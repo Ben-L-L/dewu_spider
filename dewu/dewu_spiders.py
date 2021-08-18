@@ -1,3 +1,4 @@
+# coding=utf-8
 import time
 from dewu.dewu_frida import dw
 import requests
