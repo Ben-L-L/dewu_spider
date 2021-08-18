@@ -208,15 +208,15 @@ class Geetest(object):
         req = requests.get(url=url)
         data = req.text.replace('return function(t)', 'return window.get_ct=function(t)')
 
-        js_code = f"""
+        js_code = """
         window=global;
-        {data}
+        {}
         function get_ct(t){{
             window.get_ct(t)
             return t
 
         }}
-        """
+        """.format(data)
         results = execjs.compile(js_code).call('get_ct', t)
         return results
 
