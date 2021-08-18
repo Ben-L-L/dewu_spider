@@ -103,9 +103,9 @@ def get_shoe_category(category_id):
         "times":times,
         "id":category_id,
         "category":'category',
-        "page":None,
-        "validate":None,
-        "chanllge":None
+        "page":"",
+        "validate":"",
+        "chanllge":""
     }
     postdata = json.dumps(sign_data)
     postf = StringIO()
