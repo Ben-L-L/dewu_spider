@@ -13,6 +13,7 @@ class Geetest(object):
         self.check_url = 'https://api.geetest.com/ajax.php?'
         self.session = requests.session()
         self.geetest = self.geetest_demo
+
     def get_img(self,challenge,gt):
         params = {
             'gt': gt,
