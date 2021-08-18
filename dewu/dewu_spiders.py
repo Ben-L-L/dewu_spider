@@ -5,7 +5,7 @@ import gzip
 import json
 # from dewu.dewu_frida import dw
 import requests
-from geetest_slide3.main import click_slide
+# from geetest_slide3.main import click_slide
 headers = {
     'duuuid': 'd3912f6303c7eb8a',
     'duimei': '867979020517048',
