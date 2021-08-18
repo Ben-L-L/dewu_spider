@@ -1,5 +1,8 @@
 # coding=utf-8
 import time
+from io import StringIO
+import gzip
+import json
 from dewu.dewu_frida import dw
 import requests
 from geetest_slide3.main import click_slide
@@ -30,6 +33,9 @@ script = dw.get_script()
 解决滑块方法：click_validate
 出现滑块之后通过切换Ip代理的方式行不通。
 """
+
+
+
 
 
 
@@ -83,8 +89,26 @@ def get_shoe_category(category_id):
     times = int(time.time() * 1000)
     url = 'https://app.dewu.com/api/v1/app/commodity/ice/search/doCategoryDetail'
     #获取frida script  这个要在代码初始化的时候写
-    script = dw.get_script()
-    new_sign = script.exports.getnewsign(times,category_id,get_shoe_category.__name__.split('_')[-1])
+    # script = dw.get_script()
+
+    sign_data = {
+        "times":times,
+        "id":category_id,
+        "category":get_shoe_category.__name__.split('_')[-1],
+        "page":"",
+        "validate":"",
+        "chanllge":""
+    }
+    postdata = json.dumps(sign_data)
+    postf = StringIO()
+    gf = gzip.GzipFile(fileobj=postf,mode='wb')
+    gf.write(postdata)
+    gf.close()
+    postdata = postf.getvalue()
+
+    new_sign = requests.post(url='https://18.216.112.157:24338',data=postdata,verify=False)
+    print new_sign
+
     headers['timestamp'] = str(new_sign['times'])
     data = {
         "catId":"3",
