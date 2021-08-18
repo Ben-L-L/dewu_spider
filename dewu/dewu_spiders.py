@@ -34,7 +34,15 @@ headers = {
 出现滑块之后通过切换Ip代理的方式行不通。
 """
 
-
+def post_data(data):
+    postdata = json.dumps(data)
+    postf = StringIO()
+    gf = gzip.GzipFile(fileobj=postf, mode='wb')
+    gf.write(postdata)
+    gf.close()
+    postdata = postf.getvalue()
+    web = requests.post("https://18.216.112.157:24338/sign", data=postdata, verify=False)
+    print web.text
 
 
 
@@ -94,7 +102,7 @@ def get_shoe_category(category_id):
     sign_data = {
         "times":times,
         "id":category_id,
-        "category":get_shoe_category.__name__.split('_')[-1],
+        "category":'category',
         "page":"",
         "validate":"",
         "chanllge":""
