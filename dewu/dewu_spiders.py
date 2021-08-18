@@ -7,7 +7,7 @@ import json
 import requests
 # from geetest_slide3.main import click_slide
 headers = {
-    'duuuid': 'd3912f6303c7eb8a',
+    'duuuid': 'dae0d85008025953',
     'duimei': '867979020517048',
     'duplatform': 'android',
     'appId': 'duapp',
@@ -117,19 +117,19 @@ def get_shoe_category(category_id):
     new_sign = requests.post(url='https://18.216.112.157:24338/sign',data=postdata,verify=False)
     print new_sign.text
 
-    # headers['timestamp'] = str(json.loads(new_sign.text)['times'])
-    # data = {
-    #     "catId":"3",
-    #     "loginToken": "",
-    #     "newSign": json.loads(new_sign.text)['sign'],
-    #     "platform": "android",
-    #     "timestamp": str(json.loads(new_sign.text)['times']),
-    #     "uuid": "d3912f6303c7eb8a",
-    #     "v": "4.60.1"
-    # }
-    #
-    # req = requests.post(url=url,headers=headers,json=data)
-    # return req.text
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    data = {
+        "catId":"3",
+        "loginToken": "",
+        "newSign": json.loads(new_sign.text)['sign'],
+        "platform": "android",
+        "timestamp": str(json.loads(new_sign.text)['times']),
+        "uuid": "dae0d85008025953",
+        "v": "4.60.1"
+    }
+
+    req = requests.post(url=url,headers=headers,json=data)
+    return req.text
 
 # get_shoe_category(3)
 
