@@ -1,3 +1,4 @@
+# coding=utf-8
 import requests
 from io import BytesIO
 from PIL import Image

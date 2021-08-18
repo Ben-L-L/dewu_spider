@@ -1,3 +1,4 @@
+# coding=utf-8
 import frida, sys
 import time, requests
 
