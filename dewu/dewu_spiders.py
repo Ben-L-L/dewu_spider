@@ -1,6 +1,7 @@
 # coding=utf-8
 import time
-from StringIO import StringIO
+# from StringIO import StringIO
+from io import BytesIO
 import gzip
 import json
 # from dewu.dewu_frida import dw
@@ -20,7 +21,7 @@ headers = {
     'shumeiid': '20210813103822a0e8fc8fdc893d42af2eac25674db97501b14e7ccfb136ef',
     'oaid': '',
     'User-Agent': 'duapp/4.60.1(android;6.0.1)',
-    'X-Auth-Token': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJkMzkxMmY2MzAzYzdlYjhhIiwic3ViIjoiZDM5MTJmNjMwM2M3ZWI4YSIsImlhdCI6MTYyOTE2NjU3MiwiZXhwIjoxNjYwNzAyNTcyLCJ1dWlkIjoiZDM5MTJmNjMwM2M3ZWI4YSIsInVzZXJJZCI6MTcwODU0MTQ4NSwidXNlck5hbWUiOiJcdTVlMDVcdTZjMTRcdTUxYjBcdTg0ZGQ2ZlgiLCJpc0d1ZXN0Ijp0cnVlfQ.UyavvJNs9oWyb_Wm7EGDlqxoSIiAa42r0L7LSuwexMjZ2qCBJMG19ujb_JJKymc2uhwHD5yMqRqguBpmqYgwN2KQifaglNxI5aY195TiEH809mpljL0zBUqpZHVYppAVTg4UrPxhjcJx9A4LMIvChXdx6kdqUHyDsaqzGx0bNs-4s5ZA24Ix0mseelZl4uQkzemZVTGhu-5imoR0TwU_lEsDnD_mWKjrmIJSLe5P8O-1oubOWoMWos8MJF_B16UVbyTnWCWkDp0LKlIBhRfZF6-uvYxcnhm72H53BKsCMfs_a8HoWUpR-YiFw1GcFOaMGzobHZMvEhvta-EfDfCh-A',
+    'X-Auth-Token': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJkMzkxMmY2MzAzYzdlYjhhIiwic3ViIjoiZDM5MTJmNjMwM2M3ZWI4YSIsImlhdCI6MTYyOTE5OTYyOSwiZXhwIjoxNjYwNzM1NjI5LCJ1dWlkIjoiZDM5MTJmNjMwM2M3ZWI4YSIsInVzZXJJZCI6MTcwODU0MTQ4NSwidXNlck5hbWUiOiJcdTVlMDVcdTZjMTRcdTUxYjBcdTg0ZGQ2ZlgiLCJpc0d1ZXN0Ijp0cnVlfQ.lYxcYYTNFQEzBkGCHMLqq9iZ1mBSpnaoeQlzEGgwwlS5jNtl9KpLVsT4K6N6w4tf47t3gAX5EDh1zqA-_AK7uKO-ecJB3Q1HKJFZhLqZnYmo1lYVfZC2rqF-TOiIpm0dYLECs3gSIVuvlHSIXkTvZDISuohHEkxgAd-jyq0UTZvMdV7nG05quFPfErOJO-j_4ZMudg-6y_LUdlUajAdZYuDyRMosq-xlEJOsZuFLBOjSBJuSNI_jrmTYVdcqRSZH2OzJQFOAv5_Q57aEIdloj0AWfdNLvFRMk5_KxLd83fXmr98lDWtKQsstSUmgMa8f_rD9UIPEV0s1A3qcXmLdsg',
     'Content-Type': 'application/json; charset=utf-8',
     'Host': 'app.dewu.com',
     'Accept-Encoding': 'gzip',
@@ -34,16 +35,16 @@ headers = {
 出现滑块之后通过切换Ip代理的方式行不通。
 """
 
-def post_data(data):
-    postdata = json.dumps(data)
-    postf = StringIO()
+def post_data(sign_data):
+    postdata = json.dumps(sign_data)
+    postf = BytesIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata)
+    gf.write(postdata.encode())
     gf.close()
     postdata = postf.getvalue()
-    web = requests.post("https://18.216.112.157:24338/sign", data=postdata, verify=False)
-    print web.text
 
+    new_sign = requests.post(url='https://18.216.112.157:24338/sign', data=postdata, verify=False)
+    return new_sign
 
 
 
@@ -96,8 +97,6 @@ def get_shoe_category(category_id):
     """
     times = int(time.time() * 1000)
     url = 'https://app.dewu.com/api/v1/app/commodity/ice/search/doCategoryDetail'
-    #获取frida script  这个要在代码初始化的时候写
-    # script = dw.get_script()
 
     sign_data = {
         "times":times,
@@ -107,16 +106,7 @@ def get_shoe_category(category_id):
         "validate":"",
         "chanllge":""
     }
-    postdata = json.dumps(sign_data)
-    postf = StringIO()
-    gf = gzip.GzipFile(fileobj=postf,mode='wb')
-    gf.write(postdata)
-    gf.close()
-    postdata = postf.getvalue()
-
-    new_sign = requests.post(url='https://18.216.112.157:24338/sign',data=postdata,verify=False)
-    print new_sign.text
-
+    new_sign = post_data(sign_data)
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     data = {
         "catId":"3",
@@ -131,112 +121,142 @@ def get_shoe_category(category_id):
     req = requests.post(url=url,headers=headers,json=data)
     return req.text
 
-# get_shoe_category(3)
 
 
 #通过鞋子分类下面每个品牌的id获取不同鞋子的列表页
-# def get_shoe_list(shoe_id,page):
-#     """
-#     :param shoe_id:  鞋子类别id 就是 get_shoe_category 返回的 brandId
-#     :param page:  页数 第1页为 ''   第二页为10  第三页20  以此类推
-#     :return:
-#     """
-#
-#     times = int(time.time() * 1000)
-#     url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
-#
-#     script = dw.get_script()
-#
-#     new_sign = script.exports.getnewsign(times, shoe_id, get_shoe_list.__name__.split('_')[-1],page)
-#
-#     headers['timestamp'] = str(new_sign['times'])
-#     data = {"aggregation":False,
-#             "brandId":shoe_id,
-#             "categoryIds":[],
-#             "categoryLevel1":"29",
-#             "debugAgg":True,
-#             "fitIds":[],
-#             "lastId":page,
-#             "limit":20,
-#             "loginToken":"",
-#             "newSign":new_sign['sign'],
-#             "platform":"android",
-#             "price":[],
-#             "property":[],
-#             "sortMode":1,
-#             "sortType":0,
-#             "timestamp":str(new_sign['times']),
-#             "uuid":"d3912f6303c7eb8a",
-#             "v":"4.60.1"
-#             }
-#     #
-#     req = requests.post(url=url, headers=headers, json=data)
-#     return req.text
-#
-#
-#
-# #通过鞋子列表页的spuid获取到鞋子的详情页
-# def get_shoe_detial(spuid):
-#     """
-#
-#
-#     :param spuid:  通过列表页的spuid 获取详情信息 get_shoe_list返回的spuid
-#     :return:
-#     """
-#     times = int(time.time() * 1000)
-#     url = 'https://app.dewu.com/api/v1/app/index/ice/flow/product/detail'
-#     script = dw.get_script()
-#     new_sign = script.exports.getnewsign(times, spuid, get_shoe_detial.__name__.split('_')[-1])
-#     headers['timestamp'] = str(new_sign['times'])
-#     data = {
-#         "arFileSwitch":True,
-#         "groupFirstId":spuid,
-#         "loginToken": "",
-#         "newSign": new_sign['sign'],
-#         "platform": "android",
-#         "productSourceName":"",
-#         "propertyValueId":0,
-#         "skuId":0,
-#         "spuId": spuid,
-#         "timestamp": str(new_sign['times']),
-#         "uuid": "d3912f6303c7eb8a",
-#         "v": "4.60.1"
-#     }
-#
-#     response = requests.post(url=url,headers=headers,json=data)
-#     return response.text
-#
-#
+def get_shoe_list(shoe_id,page):
+    """
+    :param shoe_id:  鞋子类别id 就是 get_shoe_category 返回的 brandId
+    :param page:  页数 第1页为 ''   第二页为10  第三页20  以此类推
+    :return:
+    """
+
+    times = int(time.time() * 1000)
+    url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
+
+    sign_data = {
+        "times": times,
+        "id": shoe_id,
+        "category": 'list',
+        "page": page,
+        "validate": "",
+        "chanllge": ""
+    }
+
+    new_sign = post_data(sign_data)
+
+
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    data = {"aggregation":False,
+            "brandId":shoe_id,
+            "categoryIds":[],
+            "categoryLevel1":"29",
+            "debugAgg":True,
+            "fitIds":[],
+            "lastId":page,
+            "limit":20,
+            "loginToken":"",
+            "newSign":json.loads(new_sign.text)['sign'],
+            "platform":"android",
+            "price":[],
+            "property":[],
+            "sortMode":1,
+            "sortType":0,
+            "timestamp":str(json.loads(new_sign.text)['times']),
+            "uuid":"dae0d85008025953",
+            "v":"4.60.1"
+            }
+
+    req = requests.post(url=url, headers=headers, json=data)
+    print(req.text)
+
+
+
+#通过鞋子列表页的spuid获取到鞋子的详情页
+def get_shoe_detial(spuid):
+    """
+
+
+    :param spuid:  通过列表页的spuid 获取详情信息 get_shoe_list返回的spuid
+    :return:
+    """
+
+    times = int(time.time() * 1000)
+    url = 'https://app.dewu.com/api/v1/app/index/ice/flow/product/detail'
+
+    sign_data = {
+        "times": times,
+        "id": spuid,
+        "category": 'detial',
+        "page": "",
+        "validate": "",
+        "chanllge": ""
+    }
+    # new_sign = script.exports.getnewsign(times, spuid, get_shoe_detial.__name__.split('_')[-1])
+
+    new_sign = post_data(sign_data)
+    print(new_sign.text)
+
+
+
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    data = {
+        "arFileSwitch":True,
+        "groupFirstId":spuid,
+        "loginToken": "",
+        "newSign": json.loads(new_sign.text)['sign'],
+        "platform": "android",
+        "productSourceName":"",
+        "propertyValueId":0,
+        "skuId":0,
+        "spuId": spuid,
+        "timestamp": str(json.loads(new_sign.text)['times']),
+        "uuid": "dae0d85008025953",
+        "v": "4.60.1"
+    }
+
+    response = requests.post(url=url,headers=headers,json=data)
+    # return response.text
+    print(response.text)
+get_shoe_detial(9670)
+
 # #通过列表页的spuid获取详情页下面的全部购买记录
-# def get_shoe_buy_history(spuid):
-#
-#     """
-#     :param spuid:  列表页获取到的spuid
-#     :param page:  一页返回100条     页码 第一页 ''  第二页要获取到接口的lastId
-#     :return:
-#     """
-#     page = ''
-#     while True:
-#         times = int(time.time() * 1000)
-#         url = 'https://app.dewu.com/api/v1/app/commodity/ice/last-sold-list'
-#
-#         new_sign = script.exports.getnewsign(times, spuid, get_shoe_buy_history.__name__.split('_')[-1],page)
-#         headers['timestamp'] = str(new_sign['times'])
-#         data = {
-#             "lastId": page,
-#             "limit":100,
-#             "loginToken": "",
-#             "newSign": new_sign['sign'],
-#             "platform": "android",
-#             "spuId":spuid,
-#             "timestamp": str(new_sign['times']),
-#             "uuid": "d3912f6303c7eb8a",
-#             "v": "4.60.1"
-#         }
-#         response = requests.post(url=url, headers=headers, json=data)
-#
-#
-#         return response.text
+def get_shoe_buy_history(spuid,page):
+
+    """
+    :param spuid:  列表页获取到的spuid
+    :param page:  一页返回100条     页码 第一页 ''  第二页要获取到接口的lastId  page就是 lastId
+    :return:
+    """
+
+    times = int(time.time() * 1000)
+    url = 'https://app.dewu.com/api/v1/app/commodity/ice/last-sold-list'
+
+    sign_data = {
+        "times": times,
+        "id": spuid,
+        "category": 'history',
+        "page": page,
+        "validate": "",
+        "chanllge": ""
+    }
+
+    new_sign = post_data(sign_data)
+
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    data = {
+        "lastId": page,
+        "limit":100,
+        "loginToken": "",
+        "newSign": json.loads(new_sign.text)['sign'],
+        "platform": "android",
+        "spuId":spuid,
+        "timestamp": str(json.loads(new_sign.text)['times']),
+        "uuid": "dae0d85008025953",
+        "v": "4.60.1"
+    }
+    response = requests.post(url=url, headers=headers, json=data)
+    return response.text
 
 
 
