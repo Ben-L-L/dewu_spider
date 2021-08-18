@@ -103,9 +103,9 @@ def get_shoe_category(category_id):
         "times":times,
         "id":category_id,
         "category":'category',
-        "page":"",
-        "validate":"",
-        "chanllge":""
+        "page":None,
+        "validate":None,
+        "chanllge":None
     }
     postdata = json.dumps(sign_data)
     postf = StringIO()
@@ -117,19 +117,19 @@ def get_shoe_category(category_id):
     new_sign = requests.post(url='https://18.216.112.157:24338/sign',data=postdata,verify=False)
     print new_sign.text
 
-    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
-    data = {
-        "catId":"3",
-        "loginToken": "",
-        "newSign": json.loads(new_sign.text)['sign'],
-        "platform": "android",
-        "timestamp": str(json.loads(new_sign.text)['times']),
-        "uuid": "d3912f6303c7eb8a",
-        "v": "4.60.1"
-    }
-
-    req = requests.post(url=url,headers=headers,json=data)
-    return req.text
+    # headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    # data = {
+    #     "catId":"3",
+    #     "loginToken": "",
+    #     "newSign": json.loads(new_sign.text)['sign'],
+    #     "platform": "android",
+    #     "timestamp": str(json.loads(new_sign.text)['times']),
+    #     "uuid": "d3912f6303c7eb8a",
+    #     "v": "4.60.1"
+    # }
+    #
+    # req = requests.post(url=url,headers=headers,json=data)
+    # return req.text
 
 # get_shoe_category(3)
 
