@@ -1,7 +1,7 @@
 # coding=utf-8
 import time
-from StringIO import StringIO
-# from io import BytesIO
+# from StringIO import StringIO
+from io import BytesIO
 import gzip
 import json
 import requests
@@ -26,9 +26,6 @@ headers = {
     'Host': 'app.dewu.com',
     'Accept-Encoding': 'gzip',
 }
-
-# script = dw.get_script()
-
 """
 风控问题接口请求次数频繁之后会出现极验的滑块验证
 解决滑块方法：click_validate
@@ -37,9 +34,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = StringIO()
+    postf = BytesIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata)
+    gf.write(postdata.encode())
     gf.close()
     postdata = postf.getvalue()
 
@@ -124,10 +121,10 @@ def get_shoe_category(category_id):
 
 
 #通过鞋子分类下面每个品牌的id获取不同鞋子的列表页
-def get_shoe_list(shoe_id,page,make):
+def get_shoe_list(unionId,page):
     """
-    :param shoe_id:  鞋子类别id 就是 get_shoe_category 返回的 brandId
-    :param page:  页数 第1页为 ''   第二页为10  第三页20  以此类推
+    :param unionId:  鞋子类别id 就是 get_shoe_category 返回的 brandId
+    :param page:  页数 第1页为 0   第二页为1 第三页2  以此类推
     :return:
     """
 
@@ -136,77 +133,31 @@ def get_shoe_list(shoe_id,page,make):
     make == 1的时候
     鞋子类别Id 就是seriesList下面redirect下面val
     page 第一页为 0 第二页为1 第三页为2  以此类推
-
-
     """
     times = int(time.time() * 1000)
-    if make == 0:
+    sign_data = {
+        "times": times,
+        "id": unionId,
+        "category": 'list',
+        "page": page,
+        "validate": "",
+        "chanllge": ""
+    }
 
-        url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
+    new_sign = post_data(sign_data)
+    print(new_sign.text)
 
-        sign_data = {
-            "times": times,
-            "id": shoe_id,
-            "category": 'list',
-            "page": page,
-            "validate": "",
-            "chanllge": ""
-        }
+    url = 'https://app.dewu.com/api/v1/app/search/ice/search/list?hideAddProduct=0&title=&unionId={}&sortMode=0&typeId=0&' \
+          'sortType=0&catId=11&showHot=1&page={}&limit=20&originSearch=false&newSign={}'.format(unionId, page,
+                                                                                                json.loads(new_sign.text)['sign'])
 
-        new_sign = post_data(sign_data)
-        headers['timestamp'] = str(json.loads(new_sign.text)['times'])
-        data = {"aggregation":False,
-                "brandId":shoe_id,
-                "categoryIds":[],
-                "categoryLevel1":"29",
-                "debugAgg":True,
-                "fitIds":[],
-                "lastId":page,
-                "limit":20,
-                "loginToken":"",
-                "newSign":json.loads(new_sign.text)['sign'],
-                "platform":"android",
-                "price":[],
-                "property":[],
-                "sortMode":1,
-                "sortType":0,
-                "timestamp":str(json.loads(new_sign.text)['times']),
-                "uuid":"dae0d85008025953",
-                "v":"4.60.1"
-                }
-        req = requests.post(url=url, headers=headers, json=data)
-        return req.text
-    # else:
-    #
-    #     sign_data = {
-    #         "times": times,
-    #         "id": shoe_id,
-    #         "category": 'list',
-    #         "page": page,
-    #         "validate": "",
-    #         "chanllge": ""
-    #     }
-    #
-    #     new_sign = post_data(sign_data)
-    #
-    #
-    #
-    #     url = 'https://app.dewu.com/api/v1/app/search/ice/search/list?'
-    #     params = {
-    #         "hideAddProduct":0,
-    #         "title":"",
-    #         "unionId":4,
-    #         "sortMode":0,
-    #         "typeId":0,
-    #         "sortType":0,
-    #         "catId":11,
-    #         "showHot":1,
-    #         "page":page,
-    #         "limit":20,
-    #         "originSearch":False,
-    #         "newSign":
-    #     }
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
 
+    headers.pop('Content-Type')
+
+    req = requests.get(url=url, headers=headers)
+    print(req.text)
+get_shoe_list(31,1)
 
 #通过鞋子列表页的spuid获取到鞋子的详情页
 def get_shoe_detial(spuid):
