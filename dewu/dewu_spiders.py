@@ -5,7 +5,7 @@ from StringIO import StringIO
 import gzip
 import json
 import requests
-# from geetest_slide3.main import click_slide
+from geetest_slide3.main import click_slide
 
 headers = {
     'duuuid': 'dae0d85008025953',
@@ -43,6 +43,47 @@ def post_data(sign_data):
 
     new_sign = requests.post(url='https://18.216.112.157:24338/sign', data=postdata, verify=False)
     return new_sign
+
+
+
+
+#解决滑块验证码方法
+def click_validate(validate,chanllge):
+    """
+    :param validate:
+    :param chanllge:
+    :return:
+    """
+
+    times = int(time.time() * 1000)
+    url = 'https://app.dewu.com/api/v1/app/security-anti-spider/secondVerify'
+
+    sign_data = {
+        "times": times,
+        "id": "",
+        "category": 'validate',
+        "page": "",
+        "validate": validate,
+        "chanllge": chanllge
+    }
+
+    new_sign = post_data(sign_data)
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    data = {
+        "challenge":chanllge,
+        "loginToken":"",
+        "newSign":json.loads(new_sign.text)['sign'],
+        "platform":"android",
+        "seccode":"{}|jordan".format(validate),
+        "serverStatus":1,
+        "timestamp":str(json.loads(new_sign.text)['times']),
+        "uuid":"dae0d85008025953",
+        "v":"4.60.1",
+        "validate":validate
+    }
+    response = requests.post(url=url, headers=headers, json=data)
+    return response.text
+
 
 
 
@@ -217,7 +258,6 @@ def get_shoe_buy_history(spuid,page):
     }
 
     new_sign = post_data(sign_data)
-
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     data = {
         "lastId": page,
@@ -232,7 +272,6 @@ def get_shoe_buy_history(spuid,page):
     }
     response = requests.post(url=url, headers=headers, json=data)
     return response.text
-
 
 
 
@@ -272,8 +311,29 @@ def get_shoe_buy_price(spuid):
     return response.text
 
 
-get_shoe_buy_price(1314105)
 
+
+
+
+
+
+
+
+
+
+
+
+"""
+gt = response.json()['data']['gt']
+challenge = response.json()['data']['challenge']
+
+results, new_chanllge = click_slide(challenge=challenge, gt=gt)
+validate = results['validate']
+click_validate(validate, new_chanllge)
+
+
+
+"""
 
 
 
