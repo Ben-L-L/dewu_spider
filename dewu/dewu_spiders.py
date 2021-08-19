@@ -241,14 +241,12 @@ def get_shoe_detial(spuid):
         "skuId": 0,
         "spuId": spuid,
         "timestamp": str(json.loads(new_sign.text)['times']),
-        "uuid": "3912f6303c7eb8a",
+        "uuid": "d3912f6303c7eb8a",
         "v": "4.60.1"
     }
 
     response = requests.post(url=url, headers=headers, json=data)
-
     return response.text
-
 
 
 # #通过列表页的spuid获取详情页下面的全部购买记录
