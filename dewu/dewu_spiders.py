@@ -1,13 +1,14 @@
 # coding=utf-8
 import time
-from StringIO import StringIO
-# from io import BytesIO
+# from StringIO import StringIO
+from io import BytesIO
 import gzip
 import json
 import requests
 # from geetest_slide3.main import click_slide
 headers = {
     'duuuid': 'dae0d85008025953',
+    # 'duuuid': 'd3912f6303c7eb8a',
     'duimei': '867979020517048',
     'duplatform': 'android',
     'appId': 'duapp',
@@ -36,9 +37,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = StringIO()
+    postf = BytesIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata)
+    gf.write(postdata.encode())
     gf.close()
     postdata = postf.getvalue()
 
@@ -96,7 +97,6 @@ def get_shoe_category(category_id):
     """
     times = int(time.time() * 1000)
     url = 'https://app.dewu.com/api/v1/app/commodity/ice/search/doCategoryDetail'
-
     sign_data = {
         "times":times,
         "id":category_id,
@@ -118,54 +118,94 @@ def get_shoe_category(category_id):
     }
 
     req = requests.post(url=url,headers=headers,json=data)
+
     return req.text
 
 
 
 #通过鞋子分类下面每个品牌的id获取不同鞋子的列表页
-def get_shoe_list(shoe_id,page):
+def get_shoe_list(shoe_id,page,make):
     """
     :param shoe_id:  鞋子类别id 就是 get_shoe_category 返回的 brandId
     :param page:  页数 第1页为 ''   第二页为10  第三页20  以此类推
     :return:
     """
 
+    """
+
+    make == 1的时候
+    鞋子类别Id 就是seriesList下面redirect下面val
+    page 第一页为 0 第二页为1 第三页为2  以此类推
+
+
+    """
     times = int(time.time() * 1000)
-    url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
+    if make == 0:
 
-    sign_data = {
-        "times": times,
-        "id": shoe_id,
-        "category": 'list',
-        "page": page,
-        "validate": "",
-        "chanllge": ""
-    }
+        url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
 
-    new_sign = post_data(sign_data)
-    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
-    data = {"aggregation":False,
-            "brandId":shoe_id,
-            "categoryIds":[],
-            "categoryLevel1":"29",
-            "debugAgg":True,
-            "fitIds":[],
-            "lastId":page,
-            "limit":20,
-            "loginToken":"",
-            "newSign":json.loads(new_sign.text)['sign'],
-            "platform":"android",
-            "price":[],
-            "property":[],
-            "sortMode":1,
-            "sortType":0,
-            "timestamp":str(json.loads(new_sign.text)['times']),
-            "uuid":"dae0d85008025953",
-            "v":"4.60.1"
-            }
-    req = requests.post(url=url, headers=headers, json=data)
-    return req.text
+        sign_data = {
+            "times": times,
+            "id": shoe_id,
+            "category": 'list',
+            "page": page,
+            "validate": "",
+            "chanllge": ""
+        }
 
+        new_sign = post_data(sign_data)
+        headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+        data = {"aggregation":False,
+                "brandId":shoe_id,
+                "categoryIds":[],
+                "categoryLevel1":"29",
+                "debugAgg":True,
+                "fitIds":[],
+                "lastId":page,
+                "limit":20,
+                "loginToken":"",
+                "newSign":json.loads(new_sign.text)['sign'],
+                "platform":"android",
+                "price":[],
+                "property":[],
+                "sortMode":1,
+                "sortType":0,
+                "timestamp":str(json.loads(new_sign.text)['times']),
+                "uuid":"dae0d85008025953",
+                "v":"4.60.1"
+                }
+        req = requests.post(url=url, headers=headers, json=data)
+        return req.text
+    # else:
+    #
+    #     sign_data = {
+    #         "times": times,
+    #         "id": shoe_id,
+    #         "category": 'list',
+    #         "page": page,
+    #         "validate": "",
+    #         "chanllge": ""
+    #     }
+    #
+    #     new_sign = post_data(sign_data)
+    #
+    #
+    #
+    #     url = 'https://app.dewu.com/api/v1/app/search/ice/search/list?'
+    #     params = {
+    #         "hideAddProduct":0,
+    #         "title":"",
+    #         "unionId":4,
+    #         "sortMode":0,
+    #         "typeId":0,
+    #         "sortType":0,
+    #         "catId":11,
+    #         "showHot":1,
+    #         "page":page,
+    #         "limit":20,
+    #         "originSearch":False,
+    #         "newSign":
+    #     }
 
 
 #通过鞋子列表页的spuid获取到鞋子的详情页
@@ -176,7 +216,6 @@ def get_shoe_detial(spuid):
     :param spuid:  通过列表页的spuid 获取详情信息 get_shoe_list返回的spuid
     :return:
     """
-
     times = int(time.time() * 1000)
     url = 'https://app.dewu.com/api/v1/app/index/ice/flow/product/detail'
 
@@ -188,33 +227,29 @@ def get_shoe_detial(spuid):
         "validate": "",
         "chanllge": ""
     }
-    # new_sign = script.exports.getnewsign(times, spuid, get_shoe_detial.__name__.split('_')[-1])
-
     new_sign = post_data(sign_data)
-    print(new_sign.text)
-
-
-
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    headers['duuuid'] = 'd3912f6303c7eb8a'
     data = {
-        "arFileSwitch":True,
-        "groupFirstId":spuid,
+        "arFileSwitch": True,
+        "groupFirstId": spuid,
         "loginToken": "",
         "newSign": json.loads(new_sign.text)['sign'],
         "platform": "android",
-        "productSourceName":"",
-        "propertyValueId":0,
-        "skuId":0,
+        "productSourceName": "classification",
+        "propertyValueId": 0,
+        "skuId": 0,
         "spuId": spuid,
         "timestamp": str(json.loads(new_sign.text)['times']),
-        "uuid": "dae0d85008025953",
+        "uuid": "3912f6303c7eb8a",
         "v": "4.60.1"
     }
 
-    response = requests.post(url=url,headers=headers,json=data)
-    # return response.text
-    # print(response.text)
-# get_shoe_detial(9670)
+    response = requests.post(url=url, headers=headers, json=data)
+
+    return response.text
+
+
 
 # #通过列表页的spuid获取详情页下面的全部购买记录
 def get_shoe_buy_history(spuid,page):
