@@ -227,7 +227,7 @@ class Geetest(object):
 
     @property
     def geetest_demo(self):
-        with open(r'./geetest_slide3/new_geetest.js', 'r', encoding='utf-8')as f:
+        with open(r'../geetest_slide3/new_geetest.js', 'r', encoding='utf-8')as f:
             js_code = f.read()
 
         ctx = execjs.compile(js_code)
@@ -246,8 +246,6 @@ def click_slide(challenge,gt):
     results = gy.check(new_chanllge, new_gt, w)
     return results,new_chanllge
 
-
-click_slide('','')
 
 
 

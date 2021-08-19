@@ -6,6 +6,7 @@ import gzip
 import json
 import requests
 # from geetest_slide3.main import click_slide
+
 headers = {
     'duuuid': 'dae0d85008025953',
     # 'duuuid': 'd3912f6303c7eb8a',
