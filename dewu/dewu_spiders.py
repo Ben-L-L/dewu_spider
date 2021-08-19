@@ -1,7 +1,7 @@
 # coding=utf-8
 import time
-from StringIO import StringIO
-# from io import BytesIO
+# from StringIO import StringIO
+from io import BytesIO
 import gzip
 import json
 import requests
@@ -35,9 +35,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = StringIO()
+    postf = BytesIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata)
+    gf.write(postdata.encode())
     gf.close()
     postdata = postf.getvalue()
 
@@ -83,50 +83,6 @@ def click_validate(validate,chanllge):
     }
     response = requests.post(url=url, headers=headers, json=data)
     return response.text
-
-
-
-
-#解决滑块验证码方法
-# def click_validate(validate,chanllge):
-#     """
-#     :param validate:   如果滑块成功会返回 validate
-#     :param chanllge:    这个就是每个滑块的标识
-#     :return:  msg = ok   stutas = 200 代表过了滑块
-#     """
-#
-#     times = int(time.time() * 1000)
-#     url = 'https://app.dewu.com/api/v1/app/security-anti-spider/secondVerify'
-#     script = dw.get_script()
-#     new_sign = script.exports.getnewsign(times, '',click_validate.__name__.split('_')[-1],'',
-#                                          validate,chanllge)
-#     headers['timestamp'] = str(new_sign['times'])
-#
-#     data = {
-#         "challenge":chanllge,
-#         "loginToken":"",
-#         "newSign":new_sign['sign'],
-#         "platform":"android",
-#         "seccode":"{}|jordan".format(validate),
-#         "serverStatus":1,
-#         "timestamp":str(new_sign['times']),
-#         "uuid":"d3912f6303c7eb8a",
-#         "v":"4.60.1",
-#         "validate":validate
-#     }
-#
-#     response = requests.post(url=url, headers=headers, json=data)
-#     results = response.json()
-#     msg = results['msg']
-#     status = results['status']
-#
-#     return msg,status
-
-
-
-
-
-
 
 # 鞋子分类接口
 def get_shoe_category(category_id):
