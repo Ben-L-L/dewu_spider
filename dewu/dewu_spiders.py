@@ -1,7 +1,7 @@
 # coding=utf-8
 import time
-# from StringIO import StringIO
-from io import BytesIO
+from StringIO import StringIO
+# from io import BytesIO
 import gzip
 import json
 import requests
@@ -37,9 +37,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = BytesIO()
+    postf = StringIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata.encode())
+    gf.write(postdata)
     gf.close()
     postdata = postf.getvalue()
 
