@@ -1,7 +1,7 @@
 # coding=utf-8
 import time
-from StringIO import StringIO
-# from io import BytesIO
+# from StringIO import StringIO
+from io import BytesIO
 import gzip
 import json
 import requests
@@ -35,9 +35,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = StringIO()
+    postf = BytesIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata)
+    gf.write(postdata.encode())
     gf.close()
     postdata = postf.getvalue()
 
@@ -124,17 +124,12 @@ def get_shoe_category(category_id):
 #通过鞋子分类下面每个品牌的id获取不同鞋子的列表页
 def get_shoe_list(unionId,page):
     """
-    :param unionId:  鞋子类别id 就是 get_shoe_category 返回的 brandId
-    :param page:  页数 第1页为 0   第二页为1 第三页2  以此类推
+    :param unionId:  鞋子类别id 就是seriesList下面redirect下面val
+    :param page:  第一页为 0 第二页为1 第三页为2  以此类推
     :return:
     """
 
-    """
 
-    make == 1的时候
-    鞋子类别Id 就是seriesList下面redirect下面val
-    page 第一页为 0 第二页为1 第三页为2  以此类推
-    """
     times = int(time.time() * 1000)
     sign_data = {
         "times": times,
@@ -146,7 +141,6 @@ def get_shoe_list(unionId,page):
     }
 
     new_sign = post_data(sign_data)
-    print(new_sign.text)
 
     url = 'https://app.dewu.com/api/v1/app/search/ice/search/list?hideAddProduct=0&title=&unionId={}&sortMode=0&typeId=0&' \
           'sortType=0&catId=11&showHot=1&page={}&limit=20&originSearch=false&newSign={}'.format(unionId, page,
@@ -157,7 +151,7 @@ def get_shoe_list(unionId,page):
     headers.pop('Content-Type')
 
     req = requests.get(url=url, headers=headers)
-    print(req.text)
+    return req.text
 
 
 #通过鞋子列表页的spuid获取到鞋子的详情页
@@ -261,7 +255,9 @@ def get_shoe_buy_price(spuid):
     }
 
     new_sign = post_data(sign_data)
+    print(new_sign.text)
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+    headers['duuuid'] = 'd3912f6303c7eb8a'
 
     data = {
         "loginToken": "",
@@ -269,7 +265,7 @@ def get_shoe_buy_price(spuid):
         "platform": "android",
         "spuId": spuid,
         "timestamp": str(json.loads(new_sign.text)['times']),
-        "uuid": "dae0d85008025953",
+        "uuid": "d3912f6303c7eb8a",
         "v": "4.60.1"
     }
 
