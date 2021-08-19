@@ -1,7 +1,7 @@
 # coding=utf-8
 import time
-# from StringIO import StringIO
-from io import BytesIO
+from StringIO import StringIO
+# from io import BytesIO
 import gzip
 import json
 import requests
@@ -35,9 +35,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = BytesIO()
+    postf = StringIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata.encode())
+    gf.write(postdata)
     gf.close()
     postdata = postf.getvalue()
 
@@ -255,7 +255,6 @@ def get_shoe_buy_price(spuid):
     }
 
     new_sign = post_data(sign_data)
-    print(new_sign.text)
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     headers['duuuid'] = 'd3912f6303c7eb8a'
 
@@ -270,7 +269,6 @@ def get_shoe_buy_price(spuid):
     }
 
     response = requests.post(url=url, headers=headers, json=data)
-    print(response.text)
     return response.text
 
 
