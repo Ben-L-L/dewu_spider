@@ -158,7 +158,7 @@ def get_shoe_list(unionId,page):
 
     req = requests.get(url=url, headers=headers)
     print(req.text)
-get_shoe_list(31,1)
+
 
 #通过鞋子列表页的spuid获取到鞋子的详情页
 def get_shoe_detial(spuid):
@@ -238,6 +238,49 @@ def get_shoe_buy_history(spuid,page):
     }
     response = requests.post(url=url, headers=headers, json=data)
     return response.text
+
+
+
+
+
+
+
+
+#通过列表页获取spuid
+def get_shoe_buy_price(spuid):
+    times = int(time.time() * 1000)
+    url = 'https://app.dewu.com/api/v1/app/inventory/price/sell/queryBuyNowInfo'
+
+    sign_data = {
+        "times": times,
+        "id": spuid,
+        "category": 'price',
+        "page": "",
+        "validate": "",
+        "chanllge": ""
+    }
+
+    new_sign = post_data(sign_data)
+    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+
+    data = {
+        "loginToken": "",
+        "newSign": json.loads(new_sign.text)['sign'],
+        "platform": "android",
+        "spuId": spuid,
+        "timestamp": str(json.loads(new_sign.text)['times']),
+        "uuid": "dae0d85008025953",
+        "v": "4.60.1"
+    }
+
+    response = requests.post(url=url, headers=headers, json=data)
+    return response.text
+
+
+
+
+
+
 
 
 
