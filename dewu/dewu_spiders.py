@@ -1,7 +1,7 @@
 # coding=utf-8
 import time
-from StringIO import StringIO
-# from io import BytesIO
+# from StringIO import StringIO
+from io import BytesIO
 import gzip
 import json
 import requests
@@ -35,9 +35,9 @@ headers = {
 
 def post_data(sign_data):
     postdata = json.dumps(sign_data)
-    postf = StringIO()
+    postf = BytesIO()
     gf = gzip.GzipFile(fileobj=postf, mode='wb')
-    gf.write(postdata)
+    gf.write(postdata.encode())
     gf.close()
     postdata = postf.getvalue()
 
@@ -64,7 +64,8 @@ def click_validate(validate,chanllge):
         "category": 'validate',
         "page": "",
         "validate": validate,
-        "chanllge": chanllge
+        "chanllge": chanllge,
+        "make":""
     }
 
     new_sign = post_data(sign_data)
@@ -98,12 +99,13 @@ def get_shoe_category(category_id):
         "category":'category',
         "page":"",
         "validate":"",
-        "chanllge":""
+        "chanllge":"",
+        "make":"",
     }
     new_sign = post_data(sign_data)
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
     data = {
-        "catId":"3",
+        "catId":category_id,
         "loginToken": "",
         "newSign": json.loads(new_sign.text)['sign'],
         "platform": "android",
@@ -117,38 +119,122 @@ def get_shoe_category(category_id):
     return req.text
 
 
-
 #通过鞋子分类下面每个品牌的id获取不同鞋子的列表页
-def get_shoe_list(unionId,page):
+def get_shoe_list(unionId,page,make):
     """
-    :param unionId:  鞋子类别id 就是seriesList下面redirect下面val
+    :param unionId:  先判断 if  seriesList['redirect']没有['val']的时候make==0,unionId给brandId  page 第一页给 '' 第二页给10  第三页20 以此类推
+                    elif seriesList['redirect']有['val'] 并且 and recommendId in seriesList['redirect']['val'] make == 1
+                    page 第一页给 '' 第二页给2  第三页给3
+
+
+                    else make == 2     unionId 给seriesList['redirect']['val']   page 第一页给0，第二页给1，第三页给2 以此类推
+
+
     :param page:  第一页为 0 第二页为1 第三页为2  以此类推
+    param make
     :return:
     """
-
-
     times = int(time.time() * 1000)
-    sign_data = {
-        "times": times,
-        "id": unionId,
-        "category": 'list',
-        "page": page,
-        "validate": "",
-        "chanllge": ""
-    }
+    if make ==0:
+        url = 'https://app.dewu.com/api/v1/app/search/ice/commodity/detail_brand'
 
-    new_sign = post_data(sign_data)
+        sign_data = {
+            "times": times,
+            "id": unionId,
+            "category": 'list',
+            "page": page,
+            "validate": "",
+            "chanllge": "",
+            "make":make
+        }
+        new_sign = post_data(sign_data)
+        headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+        headers['duuuid'] = 'd3912f6303c7eb8a'
 
-    url = 'https://app.dewu.com/api/v1/app/search/ice/search/list?hideAddProduct=0&title=&unionId={}&sortMode=0&typeId=0&' \
-          'sortType=0&catId=11&showHot=1&page={}&limit=20&originSearch=false&newSign={}'.format(unionId, page,
-                                                                                                json.loads(new_sign.text)['sign'])
+        data = {"aggregation": False,
+                "brandId": unionId,
+                "categoryIds": [],
+                "categoryLevel1": "29",
+                "debugAgg": True,
+                "fitIds": [],
+                "lastId": page,
+                "limit": 20,
+                "loginToken": "",
+                "newSign": json.loads(new_sign.text)['sign'],
+                "platform": "android",
+                "price": [],
+                "property": [],
+                "sortMode": 1,
+                "sortType": 0,
+                "timestamp": str(json.loads(new_sign.text)['times']),
+                "uuid": "d3912f6303c7eb8a",
+                "v": "4.60.1"
+                }
+        req = requests.post(url=url, headers=headers, json=data)
+        return req.text
 
-    headers['timestamp'] = str(json.loads(new_sign.text)['times'])
 
-    headers.pop('Content-Type')
+    elif make == 1:
 
-    req = requests.get(url=url, headers=headers)
-    return req.text
+        sign_data = {
+            "times": times,
+            "id": unionId,
+            "category": 'list',
+            "page": page,
+            "validate": "",
+            "chanllge": "",
+            "make": make
+        }
+
+        new_sign = post_data(sign_data)
+
+        headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+        headers['duuuid'] = 'd3912f6303c7eb8a'
+
+        url = 'https://app.dewu.com/api/v1/app/commodity/ice/boutique-recommend/detail'
+
+        data = {
+            "aggregation": {"aggregation": False, "brandId": "", "categoryId": "", "fitId": "", "highestPrice": "0",
+                            "lowestPrice": "0", "property": "", "seriesId": "", "sortMode": 1, "sortType": 0},
+            "lastId": page,
+            "lastSpuId": 0,
+            "loginToken": "",
+            "newSign": json.loads(new_sign.text)['sign'],
+            "platform": "android",
+            "realPageNum": 0,
+            "recommendId": unionId,
+            "spuIds": [],
+            "timestamp": str(json.loads(new_sign.text)['times']),
+            "uuid": "d3912f6303c7eb8a",
+            "v": "4.60.1"
+        }
+
+        req = requests.post(url=url, headers=headers, json=data)
+        return req.text
+
+
+
+    elif make == 2:
+        sign_data = {
+            "times": times,
+            "id": unionId,
+            "category": 'list',
+            "page": page,
+            "validate": "",
+            "chanllge": "",
+            "make":make
+        }
+        new_sign = post_data(sign_data)
+        url = 'https://app.dewu.com/api/v1/app/search/ice/search/list?hideAddProduct=0&title=&unionId={}&sortMode=0&typeId=0&' \
+              'sortType=0&catId=11&showHot=1&page={}&limit=20&originSearch=false&newSign={}'.format(unionId, page,
+                                                                                                    json.loads(new_sign.text)['sign'])
+        headers['timestamp'] = str(json.loads(new_sign.text)['times'])
+        headers.pop('Content-Type')
+        req = requests.get(url=url, headers=headers)
+        return req.text
+
+
+
 
 
 #通过鞋子列表页的spuid获取到鞋子的详情页
@@ -168,7 +254,8 @@ def get_shoe_detial(spuid):
         "category": 'detial',
         "page": "",
         "validate": "",
-        "chanllge": ""
+        "chanllge": "",
+        "make":""
     }
     new_sign = post_data(sign_data)
     headers['timestamp'] = str(json.loads(new_sign.text)['times'])
@@ -210,7 +297,8 @@ def get_shoe_buy_history(spuid,page):
         "category": 'history',
         "page": page,
         "validate": "",
-        "chanllge": ""
+        "chanllge": "",
+        "make":""
     }
 
     new_sign = post_data(sign_data)
@@ -246,7 +334,8 @@ def get_shoe_buy_price(spuid):
         "category": 'price',
         "page": "",
         "validate": "",
-        "chanllge": ""
+        "chanllge": "",
+        "make":"",
     }
 
     new_sign = post_data(sign_data)
@@ -265,16 +354,6 @@ def get_shoe_buy_price(spuid):
 
     response = requests.post(url=url, headers=headers, json=data)
     return response.text
-
-
-
-
-
-
-
-
-
-
 
 
 
